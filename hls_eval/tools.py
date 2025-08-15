@@ -14,7 +14,8 @@ from hls_eval.vhls_report import DesignHLSSynthData
 
 
 def auto_find_vitis_hls_dir() -> Path | None:
-    vitis_hls_bin_path_str = shutil.which("vitis_hls")
+    # Try Windows path first, then Linux
+    vitis_hls_bin_path_str = shutil.which("vitis_hls.exe") or shutil.which("vitis_hls")
     if vitis_hls_bin_path_str is None:
         return None
     vitis_hls_dist_path = Path(vitis_hls_bin_path_str).parent.parent
@@ -37,18 +38,17 @@ def auto_find_vitis_hls_clang_format() -> Path | None:
     vitis_hls_dist_path = auto_find_vitis_hls_dir()
     if vitis_hls_dist_path is None:
         return None
+    
+    # Try Windows path first, then Linux
     vitis_hls_clang_format_path = (
-        vitis_hls_dist_path
-        / "lnx64"
-        / "tools"
-        / "clang-3.9-csynth"
-        / "bin"
-        / "clang-format"
+        vitis_hls_dist_path / "win64" / "tools" / "clang-3.9-csynth" / "bin" / "clang-format.exe"
     )
     if not vitis_hls_clang_format_path.exists():
-        raise RuntimeError(
-            f"Vitis HLS dir exists but clang-format not found: {vitis_hls_clang_format_path}"
+        vitis_hls_clang_format_path = (
+            vitis_hls_dist_path / "lnx64" / "tools" / "clang-3.9-csynth" / "bin" / "clang-format"
         )
+    if not vitis_hls_clang_format_path.exists():
+        raise RuntimeError(f"Vitis HLS clang-format not found")
     return vitis_hls_clang_format_path
 
 
@@ -59,16 +59,19 @@ def auto_find_vitis_hls_lib_paths() -> list[Path] | None:
 
     lib_paths = []
 
-    # /tools/software/xilinx/Vitis_HLS/2024.1/lib/lnx64.o/libxv_hls_llvm3.1.so
-    lib_path = vitis_hls_dir / "lib" / "lnx64.o"
+    # Try Windows paths first, then Linux
+    lib_path = vitis_hls_dir / "lib" / "win64.o"
     if not lib_path.exists():
-        raise RuntimeError(f"Vitis HLS lib path not found: {lib_path}")
+        lib_path = vitis_hls_dir / "lib" / "lnx64.o"
+    if not lib_path.exists():
+        raise RuntimeError(f"Vitis HLS lib path not found")
     lib_paths.append(lib_path)
 
-    # /tools/xilinx/Vitis_HLS/2024.1/lnx64/lib/csim
-    lib_path = vitis_hls_dir / "lnx64" / "lib" / "csim"
+    lib_path = vitis_hls_dir / "win64" / "lib" / "csim"
     if not lib_path.exists():
-        raise RuntimeError(f"Vitis HLS lib path not found: {lib_path}")
+        lib_path = vitis_hls_dir / "lnx64" / "lib" / "csim"
+    if not lib_path.exists():
+        raise RuntimeError(f"Vitis HLS lib path not found")
     lib_paths.append(lib_path)
 
     return lib_paths
@@ -434,19 +437,28 @@ class CPPCompilerTool:
             shutil.copy(fp, unique_build_dir)
 
         library_paths = []
-        library_paths.append(self.vitis_hls_path / "lib" / "lnx64.o")
-        library_paths.append(self.vitis_hls_path / "lnx64" / "lib" / "csim")
+        # Try Windows paths first, then Linux
+        lib_path = self.vitis_hls_path / "lib" / "win64.o"
+        if not lib_path.exists():
+            lib_path = self.vitis_hls_path / "lib" / "lnx64.o"
+        library_paths.append(lib_path)
+        
+        lib_path = self.vitis_hls_path / "win64" / "lib" / "csim"
+        if not lib_path.exists():
+            lib_path = self.vitis_hls_path / "lnx64" / "lib" / "csim"
+        library_paths.append(lib_path)
 
         env_for_vitis_hls_clang = os.environ.copy()
-        if "LD_LIBRARY_PATH" in env_for_vitis_hls_clang:
+        if "PATH" in env_for_vitis_hls_clang:  # Windows uses PATH instead of LD_LIBRARY_PATH
             for lib_path in library_paths:
-                env_for_vitis_hls_clang["LD_LIBRARY_PATH"] += f":{lib_path}"
+                env_for_vitis_hls_clang["PATH"] += f";{lib_path}"
         else:
-            env_for_vitis_hls_clang["LD_LIBRARY_PATH"] = ":".join(
-                [str(p) for p in library_paths]
-            )
+            env_for_vitis_hls_clang["PATH"] = ";".join([str(p) for p in library_paths])
 
-        CC = self.vitis_hls_path / "lnx64/tools/clang-3.9-csynth/bin/clang++"
+        # Try Windows path first, then Linux
+        CC = self.vitis_hls_path / "win64/tools/clang-3.9-csynth/bin/clang++.exe"
+        if not CC.exists():
+            CC = self.vitis_hls_path / "lnx64/tools/clang-3.9-csynth/bin/clang++"
         CFLAGS = [
             "-std=c++14",
             "-O3",

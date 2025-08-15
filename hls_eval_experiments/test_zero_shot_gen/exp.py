@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 
 from hls_eval.data import BenchmarkCase, find_benchmark_case_dirs
 from hls_eval.eval import HLSGenerationZeroShotEvaluator
-from hls_eval.llms import build_model_remote_tai
+from hls_eval.llms import build_model_remote_openrouter
 from hls_eval.tools import VitisHLSCSimTool, VitisHLSSynthTool, auto_find_vitis_hls_dir
 from hls_eval.utils import check_key, unwrap
 
@@ -24,7 +24,7 @@ LOGGER = logging.getLogger(EXP_NAME)
 LOGGER.propagate = True
 LOGGER.setLevel(logging.DEBUG)
 
-API_KEY_TOGETHERAI = check_key(dotenv_values(".env")["TOGETHER_API_KEY"])
+API_KEY_OPENROUTER = check_key(dotenv_values(".env")["OPEN_ROUTER_API_KEY"])
 
 
 if __name__ == "__main__":
@@ -43,13 +43,11 @@ if __name__ == "__main__":
     all_benchmark_cases_map = {bc.name: bc for bc in all_benchmark_cases}
 
     model_names_to_test = [
-        "Qwen/Qwen2.5-Coder-32B-Instruct",
-        "google/gemma-2-27b-it",
-        "meta-llama/Llama-3-70b-chat-hf",
-        "meta-llama/Llama-3-8b-chat-hf",
+        "openai/gpt-oss-20b:free",
+        "qwen/qwen-2.5-coder-32b-instruct:free",
     ]
     models = [
-        build_model_remote_tai(model_name, api_key=API_KEY_TOGETHERAI)
+        build_model_remote_openrouter(model_name, api_key=API_KEY_OPENROUTER)
         for model_name in model_names_to_test
     ]
     models_map = {
@@ -85,7 +83,7 @@ if __name__ == "__main__":
         # ("heat-3d", "meta-llama/Llama-3-8b-chat-hf"),
         # ("mix_columns", "google/gemma-2-27b-it"),
         # ("mix_columns", "meta-llama/Llama-3-70b-chat-hf"),
-        ("des", "meta-llama/Llama-3-8b-chat-hf"),
+        ("des", "openai/gpt-oss-20b:free"),
         # ("monobit", "Qwen/Qwen2.5-Coder-32B-Instruct"),
         # ("monobit", "google/gemma-2-27b-it"),
         # ("monobit", "meta-llama/Llama-3-70b-chat-hf"),
