@@ -26,7 +26,11 @@ def auto_find_vitis_hls_bin() -> Path | None:
     vitis_hls_dir = auto_find_vitis_hls_dir()
     if vitis_hls_dir is None:
         return None
-    vitis_hls_bin = vitis_hls_dir / "bin" / "vitis_hls"
+    
+    # Try Windows path first, then Linux
+    vitis_hls_bin = vitis_hls_dir / "bin" / "unwrapped" / "win64.o" / "vitis_hls.exe"
+    if not vitis_hls_bin.exists():
+        vitis_hls_bin = vitis_hls_dir / "bin" / "vitis_hls"
     if not vitis_hls_bin.exists():
         raise RuntimeError(
             f"Vitis HLS dir exists but vitis_hls bin not found: {vitis_hls_bin}"
@@ -157,7 +161,10 @@ class VitisHLSSynthTool:
 
         tcl_script_fp.write_text(tcl_script)
 
-        vitis_hls_bin = self.vitis_hls_path / "bin/vitis_hls"
+        # Use auto-detected path for Windows compatibility
+        vitis_hls_bin = auto_find_vitis_hls_bin()
+        if vitis_hls_bin is None:
+            raise RuntimeError("Could not find vitis_hls binary")
 
         t_0 = time.monotonic()
         p = subprocess.Popen(
@@ -294,7 +301,10 @@ class VitisHLSCSimTool:
 
         tcl_script_fp.write_text(tcl_script)
 
-        vitis_hls_bin = self.vitis_hls_path / "bin/vitis_hls"
+        # Use auto-detected path for Windows compatibility
+        vitis_hls_bin = auto_find_vitis_hls_bin()
+        if vitis_hls_bin is None:
+            raise RuntimeError("Could not find vitis_hls binary")
 
         t_0 = time.monotonic()
         p_compile = subprocess.Popen(
