@@ -463,4 +463,9 @@ class vLLMModel(llm.Model):
 
 
 def normalize_model_name(model_name: str) -> str:
-    return model_name.replace("/", "_").replace("-", "_").replace(" ", "_").lower()
+    # Replace characters that are invalid in Windows file paths
+    normalized = model_name.replace("/", "_").replace("-", "_").replace(" ", "_").replace(":", "_").lower()
+    # Remove any other potentially problematic characters
+    import re
+    normalized = re.sub(r'[<>:"|?*]', '_', normalized)
+    return normalized
