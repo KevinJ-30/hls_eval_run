@@ -23,19 +23,24 @@ def auto_find_vitis_hls_dir() -> Path | None:
 
 
 def auto_find_vitis_hls_bin() -> Path | None:
-    vitis_hls_dir = auto_find_vitis_hls_dir()
-    if vitis_hls_dir is None:
-        return None
+    # Try to find vitis_hls.exe directly
+    vitis_hls_bin_path_str = shutil.which("vitis_hls.exe") or shutil.which("vitis_hls")
+    if vitis_hls_bin_path_str:
+        vitis_hls_bin = Path(vitis_hls_bin_path_str)
+        if vitis_hls_bin.exists():
+            return vitis_hls_bin
     
-    # Try Windows path first, then Linux
-    vitis_hls_bin = vitis_hls_dir / "bin" / "unwrapped" / "win64.o" / "vitis_hls.exe"
-    if not vitis_hls_bin.exists():
-        vitis_hls_bin = vitis_hls_dir / "bin" / "vitis_hls"
-    if not vitis_hls_bin.exists():
-        raise RuntimeError(
-            f"Vitis HLS dir exists but vitis_hls bin not found: {vitis_hls_bin}"
-        )
-    return vitis_hls_bin
+    # If not found in PATH, try the known Windows path
+    vitis_hls_bin = Path("C:/Xilinx/2025.1/Vitis/bin/unwrapped/win64.o/vitis_hls.exe")
+    if vitis_hls_bin.exists():
+        return vitis_hls_bin
+    
+    # Try alternative paths
+    vitis_hls_bin = Path("C:/Xilinx/2025.1/Vitis/bin/vitis_hls.exe")
+    if vitis_hls_bin.exists():
+        return vitis_hls_bin
+    
+    raise RuntimeError(f"Could not find vitis_hls binary")
 
 
 def auto_find_vitis_hls_clang_format() -> Path | None:
