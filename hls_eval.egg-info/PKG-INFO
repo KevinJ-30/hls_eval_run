@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: hls-eval
+Version: 0.1.0
+Summary: Benchmarking and evaluation of LLMs for HLS design
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: joblib>=1.5.1
+Requires-Dist: llm>=0.26
+Requires-Dist: llm-openrouter>=0.4.1
+Requires-Dist: llm-together>=0.4
+Requires-Dist: matplotlib>=3.10.3
+Requires-Dist: numpy>=2.2.6
+Requires-Dist: pandas>=2.2.3
+Requires-Dist: psutil>=7.0.0
+Requires-Dist: python-dotenv>=1.1.0
+Requires-Dist: seaborn>=0.13.2

@@ -1,0 +1,10 @@
+joblib>=1.5.1
+llm>=0.26
+llm-openrouter>=0.4.1
+llm-together>=0.4
+matplotlib>=3.10.3
+numpy>=2.2.6
+pandas>=2.2.3
+psutil>=7.0.0
+python-dotenv>=1.1.0
+seaborn>=0.13.2
