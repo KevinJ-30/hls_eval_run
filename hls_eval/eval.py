@@ -216,7 +216,7 @@ class HLSGenerationZeroShotEvaluator(Evaluator):
                 design_header,
             )
             eval_data["prompt"] = prompt
-            (eval_dir / "raw_llm_prompt.txt").write_text(prompt)
+            (eval_dir / "raw_llm_prompt.txt").write_text(prompt, encoding='utf-8')
 
             n_tokens_guess = approx_num_tokens(prompt)
 
@@ -294,7 +294,7 @@ class HLSGenerationZeroShotEvaluator(Evaluator):
                 eval_data["response_json"] = r.response_json
 
             eval_data["raw_output"] = str(r_text)
-            (eval_dir / "raw_llm_output.txt").write_text(r_text)
+            (eval_dir / "raw_llm_output.txt").write_text(r_text, encoding='utf-8')
 
             print(f"[{eval_id}] Extracting code from output...")
             try:
@@ -321,7 +321,7 @@ class HLSGenerationZeroShotEvaluator(Evaluator):
 
             # write the generated code to a file
             for file_name, code in generated_code.items():
-                (design_generated_dir / f"{file_name}").write_text(code)
+                (design_generated_dir / f"{file_name}").write_text(code, encoding='utf-8')
 
             build_dir = eval_dir / "build"
             build_dir.mkdir(parents=True, exist_ok=True)
@@ -497,7 +497,7 @@ class HLSEditingZeroShotEvaluator(Evaluator):
                 design_tb,
             )
             eval_data["prompt"] = prompt
-            (eval_dir / "raw_llm_prompt.txt").write_text(prompt)
+            (eval_dir / "raw_llm_prompt.txt").write_text(prompt, encoding='utf-8')
 
             n_tokens_guess = approx_num_tokens(prompt)
 
@@ -575,7 +575,7 @@ class HLSEditingZeroShotEvaluator(Evaluator):
                 eval_data["response_json"] = r.response_json
 
             eval_data["raw_output"] = str(r_text)
-            (eval_dir / "raw_llm_output.txt").write_text(data=r_text)
+            (eval_dir / "raw_llm_output.txt").write_text(r_text, encoding='utf-8')
 
             print(f"[{eval_id}] Extracting code from output...")
             try:
@@ -613,7 +613,7 @@ class HLSEditingZeroShotEvaluator(Evaluator):
 
             # write the generated code to a file
             for file_name, code in generated_code.items():
-                (design_generated_dir / f"{file_name}").write_text(code)
+                (design_generated_dir / f"{file_name}").write_text(code, encoding='utf-8')
 
             build_dir = eval_dir / "build"
             build_dir.mkdir(parents=True, exist_ok=True)
