@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 
 from hls_eval.data import BenchmarkCase, find_benchmark_case_dirs
 from hls_eval.eval import HLSGenerationZeroShotEvaluator
-from hls_eval.llms import build_model_remote_tai
+from hls_eval.llms import build_model_remote_openrouter
 from hls_eval.tools import VitisHLSCSimTool, VitisHLSSynthTool, auto_find_vitis_hls_dir
 from hls_eval.utils import check_key, unwrap
 
@@ -24,7 +24,7 @@ LOGGER = logging.getLogger(EXP_NAME)
 LOGGER.propagate = True
 LOGGER.setLevel(logging.DEBUG)
 
-API_KEY_TOGETHERAI = check_key(dotenv_values(".env")["TOGETHER_API_KEY"])
+API_KEY_OPENROUTER = check_key(dotenv_values(".env")["OPEN_ROUTER_API_KEY"])
 
 
 if __name__ == "__main__":
@@ -33,8 +33,8 @@ if __name__ == "__main__":
         BenchmarkCase(d, name=d.name) for d in all_benchmark_case_dirs
     ]
 
-    model_to_test = "Qwen/Qwen2.5-Coder-32B-Instruct"
-    model = build_model_remote_tai(model_to_test, api_key=API_KEY_TOGETHERAI)
+    model_to_test = "openai/gpt-oss-20b:free"
+    model = build_model_remote_openrouter(model_to_test, api_key=API_KEY_OPENROUTER)
 
     vitis_hls_dir = unwrap(auto_find_vitis_hls_dir(), "Vitis HLS bin not auto found")
 
