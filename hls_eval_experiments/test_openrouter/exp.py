@@ -25,7 +25,7 @@ LOGGER = logging.getLogger(EXP_NAME)
 LOGGER.propagate = True
 LOGGER.setLevel(logging.DEBUG)
 
-API_KEY_OPENROUTER = check_key(dotenv_values(".env")["OPENROUTER_API_KEY"])
+API_KEY_OPENROUTER = check_key(dotenv_values(".env")["OPEN_ROUTER_API_KEY"])
 
 
 if __name__ == "__main__":
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     ]
     all_benchmark_cases_map = {bc.name: bc for bc in all_benchmark_cases}
 
-    model_names_to_test = ["openai/gpt-4o-mini"]
+    model_names_to_test = ["openai/gpt-oss-20b:free", "qwen/qwen-2.5-coder-32b-instruct:free"]
     models = [
         build_model_remote_openrouter(model_name, api_key=API_KEY_OPENROUTER)
         for model_name in model_names_to_test
